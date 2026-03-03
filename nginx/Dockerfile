@@ -1,27 +1,19 @@
 # ===================================================================
-# Production-ready Nginx Dockerfile
-# ===================================================================
-# This Dockerfile builds the frontend from local folder and serves via Nginx
-# ===================================================================
-
-# ===================================================================
 # Stage 1: Build Frontend
 # ===================================================================
 FROM node:20-alpine AS frontend-builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files from local mockapiFrontend
+# CHỈNH SỬA 1: Đường dẫn tính từ gốc Repo khi deploy lên Render
+# Render sẽ đứng ở gốc repo để chạy lệnh build
 COPY mockapiFrontend/package*.json ./
 
-# Install dependencies
 RUN npm install
 
-# Copy source code from local mockapiFrontend
+# CHỈNH SỬA 2: Copy toàn bộ source code frontend
 COPY mockapiFrontend/ ./
 
-# Build the frontend
 RUN npm run build
 
 # ===================================================================
@@ -29,24 +21,18 @@ RUN npm run build
 # ===================================================================
 FROM nginx:alpine
 
-# ===================================================================
-# Labels for container metadata
-# ===================================================================
 LABEL maintainer="your-email@example.com"
-LABEL description="Nginx reverse proxy for MockAPI - serves frontend and proxies API"
+LABEL description="Nginx reverse proxy for MockAPI"
 
-# ===================================================================
-# Copy custom nginx configuration
-# ===================================================================
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# CHỈNH SỬA 3: File nginx.conf nằm cùng thư mục với Dockerfile (trong thư mục nginx/)
+# Nhưng vì Build Context ở gốc, ta phải trỏ vào thư mục nginx/
+COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
-# ===================================================================
-# Copy frontend build from builder stage
-# ===================================================================
+# Copy build output từ stage 1 (giữ nguyên)
 COPY --from=frontend-builder /app/dist /usr/share/nginx/html/
 
 # ===================================================================
-# Create non-root user for security
+# Bảo mật & Phân quyền (Giữ nguyên phần này rất tốt)
 # ===================================================================
 RUN addgroup -g 1000 -S appgroup && \
     adduser -u 1000 -S appuser -G appgroup && \
@@ -57,13 +43,7 @@ RUN addgroup -g 1000 -S appgroup && \
     touch /var/run/nginx.pid && \
     chown -R appuser:appgroup /var/run/nginx.pid
 
-# ===================================================================
-# Expose HTTP port
-# ===================================================================
 EXPOSE 80
 
-# ===================================================================
-# Start Nginx
-# ===================================================================
 USER appuser
 CMD ["nginx", "-g", "daemon off;"]
