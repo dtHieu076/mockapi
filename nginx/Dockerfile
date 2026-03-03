@@ -1,7 +1,7 @@
 # ===================================================================
 # Production-ready Nginx Dockerfile
 # ===================================================================
-# This Dockerfile clones the frontend repo, builds it, and serves via Nginx
+# This Dockerfile builds the frontend from local folder and serves via Nginx
 # ===================================================================
 
 # ===================================================================
@@ -12,20 +12,14 @@ FROM node:20-alpine AS frontend-builder
 # Set working directory
 WORKDIR /app
 
-# ===================================================================
-# Clone the frontend repository
-# Support both public and private repos
-# For private repo, set GITHUB_TOKEN environment variable in Render
-# ===================================================================
-RUN apk add --no-cache git && \
-    if [ -n "$GITHUB_TOKEN" ]; then \
-    git clone --depth 1 https://${GITHUB_TOKEN}@github.com/dtHieu076/mockapiFrontend.git .; \
-    else \
-    git clone --depth 1 https://github.com/dtHieu076/mockapiFrontend.git .; \
-    fi
+# Copy package files from local mockapiFrontend
+COPY mockapiFrontend/package*.json ./
 
 # Install dependencies
 RUN npm install
+
+# Copy source code from local mockapiFrontend
+COPY mockapiFrontend/ ./
 
 # Build the frontend
 RUN npm run build
