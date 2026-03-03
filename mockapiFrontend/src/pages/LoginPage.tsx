@@ -15,10 +15,10 @@ export const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: { username?: string; password?: string } = {};
-    
+
     if (!username) newErrors.username = 'Username is required';
     if (!password) newErrors.password = 'Password is required';
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -34,7 +34,8 @@ export const LoginPage: React.FC = () => {
         login(user);
       }
     } catch (err: any) {
-      setError(err.message || 'Authentication failed');
+      // Hiển thị thông báo lỗi đăng nhập không thành công
+      setError(err.message || 'Đăng nhập không thành công');
     } finally {
       setIsLoading(false);
     }
@@ -79,11 +80,10 @@ export const LoginPage: React.FC = () => {
                   setUsername(e.target.value);
                   if (errors.username) setErrors({ ...errors, username: undefined });
                 }}
-                className={`w-full h-11 px-4 rounded-lg border transition-all outline-none text-sm ${
-                  errors.username 
-                    ? 'border-red-500 focus:ring-4 focus:ring-red-500/10' 
+                className={`w-full h-11 px-4 rounded-lg border transition-all outline-none text-sm ${errors.username
+                    ? 'border-red-500 focus:ring-4 focus:ring-red-500/10'
                     : 'border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10'
-                }`}
+                  }`}
               />
               {errors.username && (
                 <p className="text-[11px] text-red-500 mt-1.5 ml-1 font-medium">{errors.username}</p>
@@ -108,11 +108,10 @@ export const LoginPage: React.FC = () => {
                   setPassword(e.target.value);
                   if (errors.password) setErrors({ ...errors, password: undefined });
                 }}
-                className={`w-full h-11 px-4 pr-10 rounded-lg border transition-all outline-none text-sm ${
-                  errors.password 
-                    ? 'border-red-500 focus:ring-4 focus:ring-red-500/10' 
+                className={`w-full h-11 px-4 pr-10 rounded-lg border transition-all outline-none text-sm ${errors.password
+                    ? 'border-red-500 focus:ring-4 focus:ring-red-500/10'
                     : 'border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10'
-                }`}
+                  }`}
               />
               <button
                 type="button"
@@ -161,7 +160,7 @@ export const LoginPage: React.FC = () => {
         <div className="mt-10 text-center">
           <p className="text-sm text-slate-500">
             {isRegister ? 'Already have an account?' : "Don't have an account?"}{' '}
-            <button 
+            <button
               onClick={() => setIsRegister(!isRegister)}
               className="text-indigo-600 font-semibold hover:underline transition-all"
             >
