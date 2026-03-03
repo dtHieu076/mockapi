@@ -13,4 +13,6 @@ public interface MockApiRepository extends JpaRepository<MockApiEntity, UUID> {
     List<MockApiEntity> findBySubdomainId(UUID subdomainId);
 
     Optional<MockApiEntity> findBySubdomainIdAndMethodAndPath(UUID subdomainId, String method, String path);
+
+    Optional<MockApiEntity> findBySubdomainIdAndPath(UUID subdomainId, String path);
 }

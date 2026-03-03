@@ -13,4 +13,6 @@ public interface SubdomainRepository extends JpaRepository<SubdomainEntity, UUID
     List<SubdomainEntity> findByAccountId(UUID accountId);
 
     Optional<SubdomainEntity> findByFullDomain(String fullDomain);
+
+    Optional<SubdomainEntity> findByName(String name);
 }
