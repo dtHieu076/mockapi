@@ -1,7 +1,7 @@
 # ===================================================================
 # Production-ready Nginx Dockerfile
 # ===================================================================
-# This Dockerfile builds the frontend and serves it via Nginx
+# This Dockerfile clones the frontend repo, builds it, and serves via Nginx
 # ===================================================================
 
 # ===================================================================
@@ -12,14 +12,14 @@ FROM node:20-alpine AS frontend-builder
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY mockapiFrontend/package*.json ./
+# ===================================================================
+# Clone the frontend repository
+# ===================================================================
+RUN apk add --no-cache git && \
+    git clone https://github.com/dtHieu076/mockapiFrontend.git .
 
 # Install dependencies
 RUN npm install
-
-# Copy source code
-COPY mockapiFrontend/ ./
 
 # Build the frontend
 RUN npm run build
