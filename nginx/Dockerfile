@@ -1,9 +1,32 @@
 # ===================================================================
 # Production-ready Nginx Dockerfile
 # ===================================================================
-# Base image: nginx:alpine (lightweight, production-ready)
+# This Dockerfile builds the frontend and serves it via Nginx
 # ===================================================================
 
+# ===================================================================
+# Stage 1: Build Frontend
+# ===================================================================
+FROM node:20-alpine AS frontend-builder
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY mockapiFrontend/package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy source code
+COPY mockapiFrontend/ ./
+
+# Build the frontend
+RUN npm run build
+
+# ===================================================================
+# Stage 2: Nginx Production
+# ===================================================================
 FROM nginx:alpine
 
 # ===================================================================
@@ -18,10 +41,9 @@ LABEL description="Nginx reverse proxy for MockAPI - serves frontend and proxies
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # ===================================================================
-# Copy frontend build files
+# Copy frontend build from builder stage
 # ===================================================================
-# Assuming the frontend build outputs to /dist (Vite default)
-COPY mockapiFrontend/dist/ /usr/share/nginx/html/
+COPY --from=frontend-builder /app/dist /usr/share/nginx/html/
 
 # ===================================================================
 # Create non-root user for security
@@ -43,8 +65,5 @@ EXPOSE 80
 # ===================================================================
 # Start Nginx
 # ===================================================================
-# Run as non-root user
 USER appuser
-
-# Start nginx with daemon off for container orchestration
 CMD ["nginx", "-g", "daemon off;"]
