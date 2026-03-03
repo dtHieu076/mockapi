@@ -25,7 +25,7 @@ public class SubdomainServiceImpl implements SubdomainService {
         AccountEntity account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
 
-        String fullDomain = name + ".mockapi.dev";
+        String fullDomain = name + ".dangthanhhieu076.id.vn";
 
         SubdomainEntity subdomain = SubdomainEntity.builder()
                 .account(account)
@@ -51,7 +51,7 @@ public class SubdomainServiceImpl implements SubdomainService {
                 .orElseThrow(() -> new RuntimeException("Subdomain not found"));
 
         subdomain.setName(name);
-        subdomain.setFullDomain(name + ".mockapi.dev");
+        subdomain.setFullDomain(name + ".dangthanhhieu076.id.vn");
 
         SubdomainEntity saved = subdomainRepository.save(subdomain);
         return toDTO(saved);
