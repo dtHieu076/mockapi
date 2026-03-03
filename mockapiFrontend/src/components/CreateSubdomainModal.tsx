@@ -26,7 +26,7 @@ export const CreateSubdomainModal: React.FC<CreateSubdomainModalProps> = ({ isOp
     } else if (!/^[a-z0-9-]+$/.test(formData.name)) {
       newErrors.name = 'Only lowercase letters, numbers and "-" allowed';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -65,7 +65,7 @@ export const CreateSubdomainModal: React.FC<CreateSubdomainModalProps> = ({ isOp
             onClick={onClose}
             className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
           />
-          
+
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -77,7 +77,7 @@ export const CreateSubdomainModal: React.FC<CreateSubdomainModalProps> = ({ isOp
               <h2 className="text-xl font-bold text-slate-900">
                 {isEdit ? 'Edit Subdomain' : 'Create New Subdomain'}
               </h2>
-              <button 
+              <button
                 onClick={onClose}
                 className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors"
               >
@@ -95,9 +95,8 @@ export const CreateSubdomainModal: React.FC<CreateSubdomainModalProps> = ({ isOp
                   placeholder="dev"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value.toLowerCase() })}
-                  className={`w-full h-11 px-4 rounded-lg border transition-all outline-none text-sm ${
-                    errors.name ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20'
-                  }`}
+                  className={`w-full h-11 px-4 rounded-lg border transition-all outline-none text-sm ${errors.name ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20'
+                    }`}
                 />
                 <p className={`text-[11px] ${errors.name ? 'text-red-500' : 'text-slate-400'}`}>
                   {errors.name || "Only lowercase letters, numbers and '-' allowed"}
@@ -109,7 +108,7 @@ export const CreateSubdomainModal: React.FC<CreateSubdomainModalProps> = ({ isOp
                 <label className="text-sm font-semibold text-slate-700">Domain Preview</label>
                 <div className="w-full h-11 px-4 rounded-lg bg-slate-50 border border-slate-100 flex items-center">
                   <span className="font-mono text-sm text-slate-500">
-                    {formData.name || 'subdomain'}.mockapi.dev
+                    {formData.name || 'subdomain'}.dangthanhhieu076.id.vn
                   </span>
                 </div>
               </div>
