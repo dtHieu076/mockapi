@@ -17,13 +17,17 @@ export const EnvironmentsPage: React.FC<{ onSelect: (id: string) => void }> = ({
   }, []);
 
   const handleCreateSubdomain = async (data: CreateEnvironmentData) => {
-    if (editingEnv) {
-      await updateEnvironment(editingEnv.id, data);
-    } else {
-      await createEnvironment(data);
+    try {
+      if (editingEnv) {
+        await updateEnvironment(editingEnv.id, data);
+      } else {
+        await createEnvironment(data);
+      }
+      setIsModalOpen(false);
+      setEditingEnv(null);
+    } catch (err) {
+      // Error is already set in context, don't close modal
     }
-    setIsModalOpen(false);
-    setEditingEnv(null);
   };
 
   const handleEdit = (env: Environment) => {
@@ -51,7 +55,7 @@ export const EnvironmentsPage: React.FC<{ onSelect: (id: string) => void }> = ({
   }
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col gap-12"
@@ -61,7 +65,7 @@ export const EnvironmentsPage: React.FC<{ onSelect: (id: string) => void }> = ({
           <h1 className="text-4xl font-black tracking-tight mb-2">Your Mock API Environments</h1>
           <p className="text-slate-500 text-lg">Manage and monitor your subdomain endpoints and mock data configurations.</p>
         </div>
-        <button 
+        <button
           onClick={() => setIsModalOpen(true)}
           className="flex items-center gap-2 bg-gradient-to-r from-primary to-indigo-600 hover:opacity-90 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-primary/20"
         >
@@ -72,9 +76,9 @@ export const EnvironmentsPage: React.FC<{ onSelect: (id: string) => void }> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {context.environments.map((env) => (
-          <EnvironmentCard 
-            key={env.id} 
-            environment={env} 
+          <EnvironmentCard
+            key={env.id}
+            environment={env}
             onManage={onSelect}
             onEdit={handleEdit}
             onDelete={handleDelete}
@@ -94,7 +98,7 @@ export const EnvironmentsPage: React.FC<{ onSelect: (id: string) => void }> = ({
         </button>
       </div>
 
-      <CreateSubdomainModal 
+      <CreateSubdomainModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSave={handleCreateSubdomain}

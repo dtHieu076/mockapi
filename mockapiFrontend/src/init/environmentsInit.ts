@@ -18,12 +18,15 @@ export const useEnvironmentsInit = (context: any) => {
   const createEnvironment = async (data: CreateEnvironmentData) => {
     if (!context.user?.id) return;
     context.setLoading(true);
+    context.setError(null); // Clear previous error
     try {
       await environmentApi.create(context.user.id, data);
       const updatedData = await environmentApi.getAll(context.user.id);
       context.setEnvironments(updatedData);
-    } catch (err) {
-      context.setError('Failed to create environment');
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.message || 'Failed to create environment';
+      context.setError(errorMsg);
+      throw err; // Re-throw so the component can catch it
     } finally {
       context.setLoading(false);
     }

@@ -9,7 +9,7 @@ export const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{ username?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ username?: string; password?: string; api?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,7 +35,9 @@ export const LoginPage: React.FC = () => {
       }
     } catch (err: any) {
       // Hiển thị thông báo lỗi đăng nhập không thành công
-      setError(err.message || 'Đăng nhập không thành công');
+      const errorMessage = err.message || 'Đăng nhập không thành công';
+      setErrors({ api: errorMessage });
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -81,8 +83,8 @@ export const LoginPage: React.FC = () => {
                   if (errors.username) setErrors({ ...errors, username: undefined });
                 }}
                 className={`w-full h-11 px-4 rounded-lg border transition-all outline-none text-sm ${errors.username
-                    ? 'border-red-500 focus:ring-4 focus:ring-red-500/10'
-                    : 'border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10'
+                  ? 'border-red-500 focus:ring-4 focus:ring-red-500/10'
+                  : 'border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10'
                   }`}
               />
               {errors.username && (
@@ -103,14 +105,15 @@ export const LoginPage: React.FC = () => {
               <input
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
                   if (errors.password) setErrors({ ...errors, password: undefined });
                 }}
                 className={`w-full h-11 px-4 pr-10 rounded-lg border transition-all outline-none text-sm ${errors.password
-                    ? 'border-red-500 focus:ring-4 focus:ring-red-500/10'
-                    : 'border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10'
+                  ? 'border-red-500 focus:ring-4 focus:ring-red-500/10'
+                  : 'border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10'
                   }`}
               />
               <button
@@ -139,6 +142,13 @@ export const LoginPage: React.FC = () => {
               <label htmlFor="remember" className="text-sm text-slate-600 cursor-pointer select-none">
                 Remember me
               </label>
+            </div>
+          )}
+
+          {/* API Error */}
+          {errors.api && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm font-medium">
+              {errors.api}
             </div>
           )}
 

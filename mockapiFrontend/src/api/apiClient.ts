@@ -13,7 +13,10 @@ export const apiClient = {
   get: async <T>(url: string): Promise<T> => {
     console.log(`[API] GET ${url}`);
     const response = await fetch(`${BASE_URL}${url}`);
-    if (!response.ok) throw new Error('Network response was not ok');
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Network response was not ok');
+    }
     return await response.json() as T;
   },
   post: async <T>(url: string, data: any): Promise<T> => {
@@ -23,7 +26,10 @@ export const apiClient = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error('Network response was not ok');
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Network response was not ok');
+    }
     return await response.json() as T;
   },
   put: async <T>(url: string, data: any): Promise<T> => {
@@ -33,7 +39,10 @@ export const apiClient = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error('Network response was not ok');
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Network response was not ok');
+    }
     return await response.json() as T;
   },
   delete: async <T>(url: string): Promise<T> => {
@@ -41,7 +50,10 @@ export const apiClient = {
     const response = await fetch(`${BASE_URL}${url}`, {
       method: 'DELETE',
     });
-    if (!response.ok) throw new Error('Network response was not ok');
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Network response was not ok');
+    }
     return await response.json() as T;
   }
 };
