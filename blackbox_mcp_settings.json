@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+        "github.com/neondatabase/mcp-server-neon": {
+            "type": "http",
+            "url": "https://mcp.neon.tech/mcp",
+            "headers": {
+                "Authorization": "Bearer napi_vj9itfsbc0zun453nvm97m8a9a1woc24zbkeg44pp49chtefcyl9qojsmi9cz4g0"
+            }
+        }
+    }
+}
