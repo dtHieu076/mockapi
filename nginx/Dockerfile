@@ -14,9 +14,15 @@ WORKDIR /app
 
 # ===================================================================
 # Clone the frontend repository
+# Support both public and private repos
+# For private repo, set GITHUB_TOKEN environment variable in Render
 # ===================================================================
 RUN apk add --no-cache git && \
-    git clone https://github.com/dtHieu076/mockapiFrontend.git .
+    if [ -n "$GITHUB_TOKEN" ]; then \
+    git clone --depth 1 https://${GITHUB_TOKEN}@github.com/dtHieu076/mockapiFrontend.git .; \
+    else \
+    git clone --depth 1 https://github.com/dtHieu076/mockapiFrontend.git .; \
+    fi
 
 # Install dependencies
 RUN npm install
