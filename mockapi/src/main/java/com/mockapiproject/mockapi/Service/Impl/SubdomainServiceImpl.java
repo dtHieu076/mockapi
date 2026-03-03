@@ -25,7 +25,11 @@ public class SubdomainServiceImpl implements SubdomainService {
         AccountEntity account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
 
+        // Kiểm tra subdomain đã tồn tại trong hệ thống chưa
         String fullDomain = name + ".dangthanhhieu076.id.vn";
+        if (subdomainRepository.findByFullDomain(fullDomain).isPresent()) {
+            throw new RuntimeException("Subdomain đã tồn tại trong hệ thống");
+        }
 
         SubdomainEntity subdomain = SubdomainEntity.builder()
                 .account(account)
@@ -50,8 +54,15 @@ public class SubdomainServiceImpl implements SubdomainService {
         SubdomainEntity subdomain = subdomainRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Subdomain not found"));
 
+        // Kiểm tra subdomain đã tồn tại trong hệ thống chưa (trừ chính nó)
+        String fullDomain = name + ".dangthanhhieu076.id.vn";
+        var existing = subdomainRepository.findByFullDomain(fullDomain);
+        if (existing.isPresent() && !existing.get().getId().equals(id)) {
+            throw new RuntimeException("Subdomain đã tồn tại trong hệ thống");
+        }
+
         subdomain.setName(name);
-        subdomain.setFullDomain(name + ".dangthanhhieu076.id.vn");
+        subdomain.setFullDomain(fullDomain);
 
         SubdomainEntity saved = subdomainRepository.save(subdomain);
         return toDTO(saved);
