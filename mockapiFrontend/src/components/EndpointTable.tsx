@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Endpoint } from '../types';
 
 interface EndpointTableProps {
   endpoints: Endpoint[];
   onEdit: (endpoint: Endpoint) => void;
   onDelete: (id: string) => void;
+  fullDomain?: string;
 }
 
-export const EndpointTable: React.FC<EndpointTableProps> = ({ endpoints, onEdit, onDelete }) => {
+export const EndpointTable: React.FC<EndpointTableProps> = ({ endpoints, onEdit, onDelete, fullDomain }) => {
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
   const getMethodColor = (method: string) => {
     switch (method) {
       case 'GET': return 'bg-green-100 text-green-700 border-green-200';
@@ -15,6 +18,15 @@ export const EndpointTable: React.FC<EndpointTableProps> = ({ endpoints, onEdit,
       case 'PUT': return 'bg-orange-100 text-orange-700 border-orange-200';
       case 'DELETE': return 'bg-red-100 text-red-700 border-red-200';
       default: return 'bg-slate-100 text-slate-700 border-slate-200';
+    }
+  };
+
+  const handleCopyLink = (endpoint: Endpoint) => {
+    if (fullDomain) {
+      const fullLink = `${fullDomain}${endpoint.path}`;
+      navigator.clipboard.writeText(fullLink);
+      setCopiedId(endpoint.id);
+      setTimeout(() => setCopiedId(null), 2000);
     }
   };
 
@@ -53,14 +65,21 @@ export const EndpointTable: React.FC<EndpointTableProps> = ({ endpoints, onEdit,
                   {endpoint.lastModified}
                 </td>
                 <td className="px-6 py-5 whitespace-nowrap text-right">
-                  <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button 
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => handleCopyLink(endpoint)}
+                      className={`p-2 transition-colors rounded-lg ${copiedId === endpoint.id ? 'text-green-500 bg-green-500/10' : 'text-slate-400 hover:text-primary hover:bg-primary/10'}`}
+                      title="Copy link"
+                    >
+                      <span className="material-symbols-outlined text-lg">{copiedId === endpoint.id ? 'check' : 'content_copy'}</span>
+                    </button>
+                    <button
                       onClick={() => onEdit(endpoint)}
                       className="p-2 text-slate-400 hover:text-primary transition-colors rounded-lg hover:bg-primary/10"
                     >
                       <span className="material-symbols-outlined text-lg">edit</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => onDelete(endpoint.id)}
                       className="p-2 text-slate-400 hover:text-red-500 transition-colors rounded-lg hover:bg-red-500/10"
                     >
@@ -73,7 +92,7 @@ export const EndpointTable: React.FC<EndpointTableProps> = ({ endpoints, onEdit,
           </tbody>
         </table>
       </div>
-      
+
       <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
         <p className="text-xs text-slate-500">Showing {endpoints.length} of {endpoints.length} endpoints</p>
         <div className="flex gap-2">

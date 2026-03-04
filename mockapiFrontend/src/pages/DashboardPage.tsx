@@ -51,14 +51,14 @@ export const DashboardPage: React.FC<{ envId: string; onBack: () => void }> = ({
   }
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       className="flex flex-col gap-8"
     >
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-2">
-          <button 
+          <button
             onClick={onBack}
             className="flex items-center gap-1 text-primary font-semibold text-sm hover:underline mb-2"
           >
@@ -76,7 +76,7 @@ export const DashboardPage: React.FC<{ envId: string; onBack: () => void }> = ({
             {context.selectedEnvironment?.name}
           </p>
         </div>
-        <button 
+        <button
           onClick={() => setIsModalOpen(true)}
           className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary to-indigo-600 text-white rounded-lg font-bold text-sm shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all active:scale-95"
         >
@@ -100,7 +100,12 @@ export const DashboardPage: React.FC<{ envId: string; onBack: () => void }> = ({
         </a>
       </div>
 
-      <EndpointTable endpoints={context.endpoints} onEdit={handleEdit} onDelete={handleDelete} />
+      <EndpointTable
+        endpoints={context.endpoints}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        fullDomain={context.selectedEnvironment?.fullDomain}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -117,7 +122,7 @@ export const DashboardPage: React.FC<{ envId: string; onBack: () => void }> = ({
             Export JSON
           </button>
         </div>
-        
+
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex gap-4 items-center">
             <div className="p-3 bg-primary/10 text-primary rounded-lg">
@@ -134,7 +139,7 @@ export const DashboardPage: React.FC<{ envId: string; onBack: () => void }> = ({
         </div>
       </div>
 
-      <CreateApiModal 
+      <CreateApiModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSave={handleSaveApi}
