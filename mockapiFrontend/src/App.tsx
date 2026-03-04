@@ -9,7 +9,7 @@ import { LoginPage } from './pages/LoginPage';
 type MainView = 'subdomains' | 'databases';
 
 function AppContent() {
-  const { isAuthenticated } = useGlobalContext();
+  const { isAuthenticated, setSelectedEnvironment } = useGlobalContext();
   const [currentEnvId, setCurrentEnvId] = useState<string | null>(null);
   const [mainView, setMainView] = useState<MainView>('subdomains');
 
@@ -19,6 +19,7 @@ function AppContent() {
 
   const handleBackToMain = () => {
     setCurrentEnvId(null);
+    setSelectedEnvironment(null);
   };
 
   const handleGoToDatabases = () => {
