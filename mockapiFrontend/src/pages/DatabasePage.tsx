@@ -323,13 +323,13 @@ export const DatabasePage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             {/* Header */}
             <div className="flex flex-wrap items-end justify-between gap-4">
                 <div className="flex flex-col gap-2">
-                    <button
+                    {/* <button
                         onClick={onBack}
                         className="flex items-center gap-1 text-primary font-semibold text-sm hover:underline mb-2"
                     >
                         <span className="material-symbols-outlined text-sm">arrow_back</span>
                         Back
-                    </button>
+                    </button> */}
                     <div className="flex items-center gap-2 text-primary font-semibold text-sm">
                         <span className="material-symbols-outlined text-sm">storage</span>
                         Database Management
