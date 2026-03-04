@@ -36,6 +36,10 @@ public class AccountEntity {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<SubdomainEntity> subdomains;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    private List<DatabaseConnectionEntity> databaseConnections;
+
     // Constructor for deserialization
     public AccountEntity(String username, String password) {
         this.username = username;

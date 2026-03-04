@@ -1,8 +1,8 @@
 package com.mockapiproject.mockapi.Entity;
 
-import jakarta.persistence.*; // Cho @Entity, @Table, @Id, @ManyToOne, @OneToMany, @JoinColumn, @UniqueConstraint
-import lombok.*; // Cho @Getter, @Setter, @NoArgsConstructor, @AllArgsConstructor, @Builder
-import org.hibernate.annotations.CreationTimestamp; // Cho @CreationTimestamp
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
@@ -39,4 +39,9 @@ public class SubdomainEntity {
     @JsonIgnore
     @OneToMany(mappedBy = "subdomain", cascade = CascadeType.ALL)
     private List<MockApiEntity> apis;
+
+    // Each subdomain can have its own database (for PER_SUBDOMAIN mode)
+    @ManyToOne
+    @JoinColumn(name = "database_connection_id")
+    private DatabaseConnectionEntity databaseConnection;
 }

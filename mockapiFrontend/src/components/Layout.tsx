@@ -1,7 +1,13 @@
 import React from 'react';
 import { useGlobalContext } from '../context/GlobalContext';
 
-export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface LayoutProps {
+  children: React.ReactNode;
+  currentView?: 'subdomains' | 'databases';
+  onViewChange?: () => void;
+}
+
+export const Layout: React.FC<LayoutProps> = ({ children, currentView = 'subdomains', onViewChange }) => {
   const { selectedEnvironment, logout, error, setError } = useGlobalContext();
 
   return (
@@ -64,6 +70,32 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             </div>
           </div>
         </header>
+
+        {/* Tab Navigation */}
+        {!selectedEnvironment && (
+          <div className="flex border-b border-slate-200 mb-8 -mt-4">
+            <a
+              className={`flex items-center gap-2 px-6 py-3 font-bold text-sm transition-all cursor-pointer ${currentView === 'subdomains'
+                  ? 'border-b-2 border-primary text-primary'
+                  : 'text-slate-500 hover:text-slate-800'
+                }`}
+              onClick={onViewChange}
+            >
+              <span className="material-symbols-outlined text-xl">dns</span>
+              Subdomains
+            </a>
+            <a
+              className={`flex items-center gap-2 px-6 py-3 font-bold text-sm transition-all cursor-pointer ${currentView === 'databases'
+                  ? 'border-b-2 border-primary text-primary'
+                  : 'text-slate-500 hover:text-slate-800'
+                }`}
+              onClick={onViewChange}
+            >
+              <span className="material-symbols-outlined text-xl">storage</span>
+              Databases
+            </a>
+          </div>
+        )}
 
         {/* Main Content */}
         <main className="flex-1">

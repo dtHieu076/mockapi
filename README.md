@@ -312,3 +312,333 @@ curl -I http://localhost/api/subdomains/{accountId}
 - All DTOs remain unchanged
 - Database schema unchanged
 - API endpoints unchanged
+
+---
+
+# DATABASE UI FEATURE - MICROSERVICES SUPPORT
+
+## Overview
+
+This document describes the new Database UI feature that allows users to connect to external databases and manage them through a web interface, similar to phpMyAdmin or DBeaver.
+
+This feature is designed to support microservices architecture where each service may have its own database.
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    DATABASE UI ARCHITECTURE                             │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         ACCOUNT (User)                                  │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │  DatabaseMode:                                                     │  │
+│  │  - SHARED: All subdomains use the same database                  │  │
+│  │  - PER_SUBDOMAIN: Each subdomain has its own database            │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                    │                                    │
+│                    ┌───────────────┼───────────────┐                   │
+│                    ▼               ▼               ▼                    │
+│           ┌────────────┐    ┌────────────┐    ┌────────────┐           │
+│           │ Subdomain 1│    │ Subdomain 2│    │ Subdomain N│           │
+│           │  (API)     │    │  (API)     │    │  (API)     │           │
+│           └────────────┘    └────────────┘    └────────────┘           │
+│                    │               │               │                    │
+│                    ▼               ▼               ▼                    │
+│           ┌────────────┐    ┌────────────┐    ┌────────────┐           │
+│           │ Database 1 │    │ Database 2 │    │ Database N │           │
+│           │ (if PER)   │    │ (if PER)   │    │ (if PER)   │           │
+│           └────────────┘    └────────────┘    └────────────┘           │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         SUPPORTED DATABASES                              │
+└─────────────────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────┐     ┌──────────────────┐
+  │   PostgreSQL     │     │      MySQL       │
+  │                  │     │                  │
+  │  - Neon          │     │  - MySQL         │
+  │  - Self-hosted   │     │  - MariaDB       │
+  │  - AWS RDS       │     │  - AWS RDS       │
+  └──────────────────┘     └──────────────────┘
+```
+
+## Database Modes
+
+### 1. SHARED Mode
+- All subdomains under an account share a single database
+- Suitable for monolithic applications
+- Cost-effective for small projects
+
+### 2. PER_SUBDOMAIN Mode
+- Each subdomain has its own dedicated database
+- Suitable for microservices architecture
+- Better isolation and scalability
+- Each service can have independent database schema
+
+## Use Cases
+
+### Microservices Architecture
+```
+Account: mycompany.com
+
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  auth.api       │     │  order.api      │     │  product.api    │
+│  (auth.)        │     │  (orders.)      │     │  (products.)    │
+└────────┬────────┘     └────────┬────────┘     └────────┬────────┘
+         │                        │                        │
+         ▼                        ▼                        ▼
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  auth_db        │     │  order_db       │     │  product_db     │
+│  (PostgreSQL)   │     │  (MySQL)        │     │  (PostgreSQL)   │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+```
+
+## Features
+
+### 1. Database Connection Management
+- Add/Edit/Delete database connections
+- Support PostgreSQL and MySQL
+- Store connection details (host, port, database name, credentials)
+- Test connection before saving
+
+### 2. Table Management
+- View all tables in a database
+- Create new tables
+- Drop (delete) tables
+- View table metadata
+
+### 3. Column Management
+- View all columns in a table
+- Add new columns
+- Modify column properties (name, type, constraints)
+- Drop columns
+
+### 4. Row Management (Basic)
+- View rows in a table
+- Add new rows
+- Edit existing rows
+- Delete rows
+- Note: Full SQL query support for advanced users
+
+## API Endpoints
+
+### Connection Management
+```
+POST   /api/databases              - Create new database connection
+GET    /api/databases              - List all connections for account
+GET    /api/databases/{id}         - Get connection details
+PUT    /api/databases/{id}         - Update connection
+DELETE /api/databases/{id}         - Delete connection
+POST   /api/databases/{id}/test    - Test connection
+```
+
+### Table Operations
+```
+GET    /api/databases/{id}/tables              - List all tables
+POST   /api/databases/{id}/tables              - Create new table
+DELETE /api/databases/{id}/tables/{name}        - Drop table
+```
+
+### Column Operations
+```
+GET    /api/databases/{id}/tables/{name}/columns           - List columns
+POST   /api/databases/{id}/tables/{name}/columns           - Add column
+PUT    /api/databases/{id}/tables/{name}/columns/{colName}  - Update column
+DELETE /api/databases/{id}/tables/{name}/columns/{colName}  - Drop column
+```
+
+### Row Operations
+```
+GET    /api/databases/{id}/tables/{name}/rows            - Get rows
+POST   /api/databases/{id}/tables/{name}/rows             - Insert row
+PUT    /api/databases/{id}/tables/{name}/rows/{id}        - Update row
+DELETE /api/databases/{id}/tables/{name}/rows/{id}         - Delete row
+```
+
+## Database Schema
+
+### DatabaseConnectionEntity
+```java
+@Entity
+@Table(name = "database_connection")
+public class DatabaseConnectionEntity {
+    @Id
+    @GeneratedValue
+    private UUID id;
+    
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    private AccountEntity account;
+    
+    private String name;                    // Display name
+    
+    @Enumerated(EnumType.STRING)
+    private DatabaseType databaseType;     // POSTGRESQL, MYSQL
+    
+    private String host;
+    private Integer port;
+    private String databaseName;
+    private String username;
+    private String password;                // Encrypted
+    
+    @Enumerated(EnumType.STRING)
+    private DatabaseMode mode;              // SHARED, PER_SUBDOMAIN
+    
+    private Boolean isActive;
+}
+```
+
+### DatabaseType Enum
+```java
+public enum DatabaseType {
+    POSTGRESQL,
+    MYSQL
+}
+```
+
+### DatabaseMode Enum
+```java
+public enum DatabaseMode {
+    SHARED,           // All subdomains use same database
+    PER_SUBDOMAIN    // Each subdomain has own database
+}
+```
+
+## Implementation Plan
+
+### Phase 1: Backend - Entities & DTOs
+- [x] Create DatabaseType enum
+- [x] Create DatabaseMode enum
+- [x] Create DatabaseConnectionEntity
+- [x] Create DatabaseConnectionDTO
+- [x] Update SubdomainEntity to reference DatabaseConnection
+- [x] Create DatabaseConnectionRepository
+
+### Phase 2: Backend - Services
+- [x] Create DatabaseConnectionService
+- [x] Create DatabaseQueryService (JDBC operations)
+- [x] Create DatabaseMetadataService (tables, columns info)
+- [x] Create TableManagementService
+- [x] Create ColumnManagementService
+- [x] Create RowManagementService
+
+### Phase 3: Backend - Controllers
+- [x] Create DatabaseController with all endpoints
+
+### Phase 4: Frontend - UI Components
+- [x] Update types.ts with Database types
+- [x] Create databaseApi.ts
+- [x] Create DatabasePage.tsx
+- [x] Create ConnectionForm.tsx (integrated in DatabasePage)
+- [x] Create DatabaseBrowser.tsx (integrated in DatabasePage)
+- [x] Create TableViewer.tsx (integrated in DatabasePage)
+- [x] Update App.tsx with routes
+- [x] Update Layout.tsx with navigation
+
+## Technical Details
+
+### JDBC Connection Management
+- Use HikariCP for connection pooling
+- Dynamic connection configuration based on database type
+- Connection validation before queries
+
+### Security (For Production)
+- Encrypt database passwords using AES-256
+- Never log sensitive credentials
+- Use environment variables for secrets in production
+
+### Dependencies
+```xml
+<!-- MySQL Driver -->
+<dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+</dependency>
+
+<!-- HikariCP (included in spring-boot-starter-jdbc) -->
+<dependency>
+    <groupId>com.zaxxer</groupId>
+    <artifactId>HikariCP</artifactId>
+</dependency>
+```
+
+## Current Project Structure
+
+```
+mockapi/
+├── mockapi/                          # Spring Boot Backend
+│   ├── src/main/java/.../
+│   │   ├── Controller/               # REST Controllers
+│   │   ├── Service/                  # Business Logic
+│   │   ├── Entity/                   # JPA Entities
+│   │   ├── DTO/                      # Data Transfer Objects
+│   │   └── Repository/               # JPA Repositories
+│   └── pom.xml                       # Maven dependencies
+│
+├── mockapiFrontend/                  # React Frontend
+│   ├── src/
+│   │   ├── pages/                    # Page components
+│   │   ├── components/               # Reusable components
+│   │   ├── api/                      # API clients
+│   │   └── types.ts                  # TypeScript types
+│   └── package.json                  # NPM dependencies
+│
+└── nginx/                             # Nginx Reverse Proxy
+    ├── nginx.conf                    # Configuration
+    └── Dockerfile                     # Container build
+```
+
+## Files to be Created/Modified
+
+### Backend New Files
+- `mockapi/src/main/java/com/mockapiproject/mockapi/Entity/DatabaseConnectionEntity.java`
+- `mockapi/src/main/java/com/mockapiproject/mockapi/Enum/DatabaseType.java`
+- `mockapi/src/main/java/com/mockapiproject/mockapi/Enum/DatabaseMode.java`
+- `mockapi/src/main/java/com/mockapiproject/mockapi/DTO/DatabaseConnectionDTO.java`
+- `mockapi/src/main/java/com/mockapiproject/mockapi/DTO/TableDTO.java`
+- `mockapi/src/main/java/com/mockapiproject/mockapi/DTO/ColumnDTO.java`
+- `mockapi/src/main/java/com/mockapiproject/mockapi/DTO/RowDTO.java`
+- `mockapi/src/main/java/com/mockapiproject/mockapi/Repository/DatabaseConnectionRepository.java`
+- `mockapi/src/main/java/com/mockapiproject/mockapi/Service/DatabaseConnectionService.java`
+- `mockapi/src/main/java/com/mockapiproject/mockapi/Service/DatabaseQueryService.java`
+- `mockapi/src/main/java/com/mockapiproject/mockapi/Service/DatabaseMetadataService.java`
+- `mockapi/src/main/java/com/mockapiproject/mockapi/Controller/DatabaseController.java`
+
+### Backend Modified Files
+- `mockapi/pom.xml` - Add MySQL dependency
+- `mockapi/src/main/java/com/mockapiproject/mockapi/Entity/SubdomainEntity.java` - Add FK to DatabaseConnection
+- `mockapi/src/main/java/com/mockapiproject/mockapi/Entity/AccountEntity.java` - Add database mode field
+
+### Frontend New Files
+- `mockapiFrontend/src/api/databaseApi.ts`
+- `mockapiFrontend/src/pages/DatabasePage.tsx`
+- `mockapiFrontend/src/components/ConnectionForm.tsx`
+- `mockapiFrontend/src/components/DatabaseBrowser.tsx`
+- `mockapiFrontend/src/components/TableViewer.tsx`
+
+### Frontend Modified Files
+- `mockapiFrontend/src/types.ts` - Add Database types
+- `mockapiFrontend/src/App.tsx` - Add routes
+- `mockapiFrontend/src/components/Layout.tsx` - Add navigation
+
+## Development Notes
+
+### Testing
+- Test with local PostgreSQL and MySQL instances
+- Verify connection pooling works correctly
+- Test edge cases (invalid credentials, network failures)
+
+### Performance Considerations
+- Connection pooling prevents resource exhaustion
+- Lazy loading for large tables
+- Pagination for tables with many rows
+
+### Future Enhancements
+- SQL query editor for advanced users
+- Import/Export functionality
+- Database backup/restore
+- Support for more database types (MongoDB, SQL Server, Oracle)
+- Real-time data synchronization
